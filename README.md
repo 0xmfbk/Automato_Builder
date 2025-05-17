@@ -72,40 +72,6 @@ Automata Builder is a web-based tool designed to make automata theory accessible
 
 ---
 
-## 🚀 How to Run Locally
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/yourrepo.git
-   cd yourrepo
-   ```
-2. **Open in your browser:**
-   - Double-click `AutomataBuilder.html` or open it with your favorite browser.
-
-> _No build step, no dependencies!_
-
----
-
-## 🌍 Deploy to GitHub Pages
-
-1. Push your project to a GitHub repository.
-2. Go to **Settings > Pages** in your repo.
-3. Set the source to the `main` branch and `/root` (or `/docs` if you move your files).
-4. Your site will be live at `https://yourusername.github.io/yourrepo/AutomataBuilder.html`.
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-- Fork the repo
-- Create your feature branch (`git checkout -b feature/YourFeature`)
-- Commit your changes (`git commit -am 'Add some feature'`)
-- Push to the branch (`git push origin feature/YourFeature`)
-- Open a Pull Request
-
----
-
 ## 📄 License
 
 [MIT License](LICENSE)
