@@ -30,16 +30,6 @@ Automata Builder is a web-based tool designed to make automata theory accessible
 
 ---
 
-## 📸 Screenshots
-
-> _Add your screenshots here!_
-
-| Build Automata | Simulate Input | Export & Share |
-|:-------------:|:--------------:|:--------------:|
-| ![Build](assets/screenshot1.png) | ![Simulate](assets/screenshot2.png) | ![Export](assets/screenshot3.png) |
-
----
-
 ## 📚 User Guide
 
 ### 1. **Getting Started**
