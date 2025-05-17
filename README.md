@@ -2,8 +2,6 @@
 
 > A modern, interactive web tool for building, visualizing, and simulating finite automata (DFA, NFA, ε-NFA) with an intuitive drag-and-drop interface and real-time simulation. Perfect for students, educators, and computer science enthusiasts.
 
-![Automata Builder Banner](https://raw.githubusercontent.com/yourusername/yourrepo/main/assets/banner.png)
-
 > **Interactive, modern, and powerful web tool for building, visualizing, and simulating automata.**
 
 ---
