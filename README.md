@@ -33,7 +33,7 @@ Automata Builder is a web-based tool designed to make automata theory accessible
 ## 📚 User Guide
 
 ### 1. **Getting Started**
-- Open `AutomataBuilder.html` in your browser, or visit the [live demo](https://yourusername.github.io/yourrepo/AutomataBuilder.html).
+- Open `Live Web`
 
 ### 2. **Building Automata**
 - **Add State**: Click on empty canvas space to add a new state (auto-named q0, q1, ...).
