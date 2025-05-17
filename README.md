@@ -24,7 +24,7 @@ Automata Builder is a web-based tool designed to make automata theory accessible
 
 ---
 
-## 🖥️ Live Demo
+## 🖥️ Live Web
 
 > **[👉 Try Automata Builder Online (0xmfbk)](https://0xmfbk.tiiny.site)**
 
