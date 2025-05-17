@@ -1,0 +1,85 @@
+{
+  "states": [
+    {
+      "x": 200,
+      "y": 1160,
+      "name": "q0",
+      "isStart": true,
+      "isAccept": false
+    },
+    {
+      "x": 720,
+      "y": 1160,
+      "name": "q1",
+      "isStart": false,
+      "isAccept": false
+    },
+    {
+      "x": 240,
+      "y": 1520,
+      "name": "q2",
+      "isStart": false,
+      "isAccept": true
+    },
+    {
+      "x": 1080,
+      "y": 1520,
+      "name": "q3",
+      "isStart": false,
+      "isAccept": false
+    }
+  ],
+  "transitions": [
+    {
+      "from": 1,
+      "to": 3,
+      "symbol": "b"
+    },
+    {
+      "from": 2,
+      "to": 3,
+      "symbol": "v"
+    },
+    {
+      "from": 3,
+      "to": 2,
+      "symbol": "c"
+    },
+    {
+      "from": 0,
+      "to": 1,
+      "symbol": "a"
+    },
+    {
+      "from": 3,
+      "to": 1,
+      "symbol": "f"
+    },
+    {
+      "from": 2,
+      "to": 1,
+      "symbol": "x"
+    },
+    {
+      "from": 1,
+      "to": 0,
+      "symbol": "v"
+    },
+    {
+      "from": 0,
+      "to": 0,
+      "symbol": "r"
+    },
+    {
+      "from": 1,
+      "to": 1,
+      "symbol": "g"
+    },
+    {
+      "from": 3,
+      "to": 3,
+      "symbol": "w"
+    }
+  ],
+  "automatonType": "DFA"
+}

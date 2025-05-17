@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Automata Builder</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #60a5fa;
+      --primary-dark: #1e40af;
+      --accent: #fbbf24;
+      --accent-light: #f59e42;
+      --accent-dark: #b45309;
+      --danger: #ef4444;
+      --danger-light: #f87171;
+      --danger-dark: #b91c1c;
+      --success: #22c55e;
+      --success-light: #4ade80;
+      --success-dark: #15803d;
+      --info: #06b6d4;
+      --info-light: #67e8f9;
+      --info-dark: #0e7490;
+      --help: #7c3aed;
+      --help-light: #a78bfa;
+      --help-dark: #5b21b6;
+      --bg: linear-gradient(135deg, #e3e9f7 0%, #f4f6fa 100%);
+      --glass: rgba(255,255,255,0.65);
+      --glass-blur: blur(12px);
+      --state: #fff;
+      --state-border: #2d6cdf;
+      --accept: #4caf50;
+      --start-arrow: #2d6cdf;
+      --transition: #444;
+      --font: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+      --shadow: 0 8px 32px rgba(44,108,223,0.10);
+      --btn-shadow: 0 2px 12px 0 rgba(0,0,0,0.10), 0 1.5px 0.5px 0 rgba(0,0,0,0.04);
+      --border: 1.5px solid rgba(0,0,0,0.04);
+      --focus-outline: 0 0 0 4px var(--primary-light);
+    }
+    html, body {
+      max-width: 100vw;
+      overflow-x: hidden;
+      min-height: 100vh;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      font-family: var(--font); 
+      color: #222;
+      letter-spacing: 0.01em;
+      font-size: 1.08rem; 
+      display: flex;
+      flex-direction: column;
+    }
+    body {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+    nav#navbar {
+      width: 100vw;
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      background: linear-gradient(90deg, rgba(45,108,223,0.92) 0%, rgba(124,58,237,0.85) 100%);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 6px 32px 0 rgba(44,108,223,0.13), 0 1.5px 0.5px 0 rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 2.2rem 0.7rem 2.2rem;
+      min-height: 68px;
+      border-bottom: 2.5px solid rgba(124,58,237,0.13);
+      box-sizing: border-box;
+      animation: navbar-glow 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes navbar-glow {
+      0% { box-shadow: 0 6px 32px 0 rgba(44,108,223,0.13), 0 1.5px 0.5px 0 rgba(0,0,0,0.04); }
+      100% { box-shadow: 0 10px 48px 0 rgba(124,58,237,0.22), 0 2.5px 1px 0 rgba(45,108,223,0.10); }
+    }
+    .navbar-title {
+      font-size: 2.7rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 3px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      user-select: none;
+      font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: none;
+      -webkit-background-clip: initial;
+      -webkit-text-fill-color: initial;
+      background-clip: initial;
+      text-fill-color: initial;
+      animation: none;
+      transition: font-size 0.2s, letter-spacing 0.2s;
+    }
+    @keyframes navbar-title-glow {
+      0% { text-shadow: 0 4px 24px rgba(124,58,237,0.22), 0 2px 8px rgba(0,0,0,0.13), 0 0 16px #60a5fa99; }
+      100% { text-shadow: 0 8px 36px rgba(124,58,237,0.33), 0 4px 16px rgba(0,0,0,0.18), 0 0 32px #a78bfa99; }
+    }
+    .navbar-dev {
+      font-size: 1.13rem;
+      font-weight: 600;
+      color: #e0e7ff;
+      letter-spacing: 0.04em;
+      font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+      background: none;
+      -webkit-background-clip: initial;
+      -webkit-text-fill-color: initial;
+      background-clip: initial;
+      text-fill-color: initial;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+      margin-left: 1.5rem;
+      white-space: nowrap;
+      opacity: 1;
+    }
+    @media (max-width: 600px) {
+      #navbar {
+        padding: 0.7rem 0.7rem;
+        min-height: 48px;
+      }
+      .navbar-title {
+        font-size: 1.35rem;
+        letter-spacing: 1.5px;
+      }
+      .navbar-dev {
+        font-size: 0.93rem;
+        margin-left: 0.7rem;
+      }
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0 1.5rem 0 1.5rem;
+      gap: 2.5rem;
+      height: 100vh;
+      min-height: 0;
+      box-sizing: border-box;
+    }
+    #main-layout {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      width: 100vw;
+      height: 100%;
+      min-height: 0;
+      gap: 2.5rem;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+    #canvas-container {
+      flex: 1 1 0;
+      width: 1280px;
+      height: 2000px;
+      background: var(--glass);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      border: 2px solid #e3e9f7;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      backdrop-filter: var(--glass-blur);
+      margin: 0 auto;
+      transition: box-shadow 0.2s, border 0.2s;
+      overflow: auto;
+    }
+    #controls-sidebar {
+      min-width: 340px;
+      max-width: 460px;
+      background: var(--glass);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 2.2rem 2.7rem 1.5rem 2.7rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      backdrop-filter: var(--glass-blur);
+      border: 1.5px solid #e3e9f7;
+      position: sticky;
+      top: 0;
+      right: 0;
+      height: fit-content;
+      box-sizing: border-box;
+    }
+    .sidebar-section {
+      margin-bottom: 1.1rem;
+      background: rgba(255,255,255,0.13);
+      border-radius: 10px;
+      padding: 1.1rem 1rem 0.7rem 1rem;
+      box-shadow: 0 1px 4px rgba(44,108,223,0.03);
+      transition: background 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .sidebar-label {
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.2rem;
+      font-size: 1.08rem;
+      letter-spacing: 0.01em;
+    }
+    .sidebar-btn, #controls-bar .sidebar-btn, #controls-bar a.sidebar-btn {
+      width: 100%;
+      min-height: 48px;
+      border: var(--border);
+      border-radius: 999px;
+      padding: 0 1.6rem;
+      font-size: 1.15rem;
+      font-family: var(--font);
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      outline: none;
+      box-shadow: var(--btn-shadow);
+      transition: background 0.18s, box-shadow 0.18s, transform 0.13s, color 0.18s, border 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0.22rem 0;
+      text-decoration: none;
+      text-align: center;
+      position: relative;
+      user-select: none;
+      box-sizing: border-box;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.04));
+    }
+    .sidebar-btn:focus-visible {
+      border: 2.5px solid var(--primary-light);
+      box-shadow: var(--focus-outline);
+    }
+    .sidebar-btn:active {
+      filter: brightness(0.97);
+      transform: scale(0.97);
+    }
+    .sidebar-btn.primary {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: #fff;
+    }
+    .sidebar-btn.primary:hover, .sidebar-btn.primary:focus {
+      background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+      border: 2.5px solid var(--primary-light);
+      box-shadow: 0 6px 24px 0 var(--primary-light), 0 2px 8px 0 rgba(0,0,0,0.08);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .sidebar-btn.accent {
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+      color: #222;
+    }
+    .sidebar-btn.accent:hover, .sidebar-btn.accent:focus {
+      background: linear-gradient(90deg, var(--accent-dark) 0%, var(--accent) 100%);
+      color: #222;
+      border: 2.5px solid var(--accent-light);
+      box-shadow: 0 6px 24px 0 var(--accent-light), 0 2px 8px 0 rgba(0,0,0,0.08);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .sidebar-btn.danger {
+      background: linear-gradient(90deg, var(--danger) 0%, var(--danger-light) 100%);
+      color: #fff;
+    }
+    .sidebar-btn.danger:hover, .sidebar-btn.danger:focus {
+      background: linear-gradient(90deg, var(--danger-dark) 0%, var(--danger) 100%);
+      color: #fff;
+      border: 2.5px solid var(--danger-light);
+      box-shadow: 0 6px 24px 0 var(--danger-light), 0 2px 8px 0 rgba(0,0,0,0.08);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .sidebar-btn.success {
+      background: linear-gradient(90deg, var(--success) 0%, var(--success-light) 100%);
+      color: #fff;
+    }
+    .sidebar-btn.success:hover, .sidebar-btn.success:focus {
+      background: linear-gradient(90deg, var(--success-dark) 0%, var(--success) 100%);
+      color: #fff;
+      border: 2.5px solid var(--success-light);
+      box-shadow: 0 6px 24px 0 var(--success-light), 0 2px 8px 0 rgba(0,0,0,0.08);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .sidebar-btn.info {
+      background: linear-gradient(90deg, var(--info) 0%, var(--info-light) 100%);
+      color: #fff;
+    }
+    .sidebar-btn.info:hover, .sidebar-btn.info:focus {
+      background: linear-gradient(90deg, var(--info-dark) 0%, var(--info) 100%);
+      color: #fff;
+      border: 2.5px solid var(--info-light);
+      box-shadow: 0 6px 24px 0 var(--info-light), 0 2px 8px 0 rgba(0,0,0,0.08);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .sidebar-btn.help, #controls-bar a.sidebar-btn.help {
+      background: linear-gradient(90deg, var(--help-light) 0%, var(--help) 100%);
+      color: #fff;
+      width: 100%;
+      max-width: 100%;
+      min-height: 48px;
+      border-radius: 999px;
+      padding: 0 1.6rem;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .sidebar-btn.help:hover, .sidebar-btn.help:focus, #controls-bar a.sidebar-btn.help:hover, #controls-bar a.sidebar-btn.help:focus {
+      background: linear-gradient(90deg, var(--help-dark) 0%, var(--help) 100%);
+      color: #fff;
+      border: 2.5px solid var(--help-light);
+      box-shadow: 0 6px 24px 0 var(--help-light), 0 2px 8px 0 rgba(0,0,0,0.08);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .sidebar-input, #controls-bar .sidebar-input {
+      width: 100%;
+      height: 44px;
+      border: 1.7px solid #dbe6f7;
+      border-radius: 8px;
+      font-size: 1.08rem;
+      font-family: var(--font);
+      background: #f8fafc;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 4px rgba(44,108,223,0.04);
+      padding: 0 1.1rem;
+      margin: 0.12rem 0;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sidebar-input:focus {
+      border: 1.7px solid var(--primary);
+      box-shadow: 0 2px 8px rgba(44,108,223,0.10);
+    }
+    #controls-bar .state-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.18rem;
+      margin: 0.2rem 0 0.2rem 0;
+      align-items: center;
+      min-width: 100%;
+      max-width: 100%;
+    }
+    .state-chip {
+      background: #e3e9f7;
+      color: #2d6cdf;
+      border-radius: 14px;
+      padding: 0.25rem 0.85rem;
+      font-size: 1.01rem;
+      margin-right: 0.1rem;
+      margin-bottom: 0.1rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border 0.18s, background 0.18s, color 0.18s;
+      user-select: none;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      display: inline-flex;
+      align-items: center;
+      height: 32px;
+    }
+    .state-chip.selected, .state-chip:hover {
+      border: 2px solid var(--primary);
+      background: #dbe6f7;
+      color: #1b4e9b;
+    }
+    .state-chip.accept {
+      color: var(--accept);
+      border-color: var(--accept);
+      background: #eafbe7;
+    }
+    .state-chip.start {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: #e3e9f7;
+    }
+    #feedback {
+      margin-top: 0.7rem;
+      min-width: 180px;
+      font-size: 1.13rem;
+      font-weight: 600;
+      color: var(--primary);
+      letter-spacing: 0.01em;
+      display: block;
+    }
+    @media (max-width: 1400px) {
+      #canvas-container {
+        min-width: 900px;
+        min-height: 800px;
+        max-width: 98vw;
+      }
+    }
+    @media (max-width: 900px) {
+      #main-layout {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.7rem;
+      }
+      #canvas-container {
+        min-width: unset;
+        max-width: 98vw;
+        width: 98vw;
+        min-height: 200px;
+        margin: 0 auto;
+        padding: 0.5rem;
+        border-radius: 0;
+      }
+    }
+    @media (max-width: 600px) {
+      #canvas-container {
+        min-width: 100vw;
+        max-width: 100vw;
+        width: 100vw;
+        min-height: 120px;
+        overflow: auto;
+        border-radius: 0;
+        padding: 0.5rem;
+      }
+    }
+    #controls {
+      min-width: 280px;
+      max-width: 350px;
+      background: var(--glass);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 2.2rem 1.5rem 1.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      backdrop-filter: var(--glass-blur);
+      border: 1.5px solid #e3e9f7;
+      transition: box-shadow 0.2s;
+    }
+    .control-group {
+      margin-bottom: 0.7rem;
+      background: rgba(255,255,255,0.13);
+      border-radius: 10px;
+      padding: 0.7rem 0.7rem 0.5rem 0.7rem;
+      box-shadow: 0 1px 4px rgba(44,108,223,0.03);
+      transition: background 0.2s;
+    }
+    .control-label {
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.4rem;
+      display: block;
+      font-size: 1.08rem;
+      letter-spacing: 0.01em;
+    }
+    .input, input[type='text'], select {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 1.7px solid #dbe6f7;
+      border-radius: 8px;
+      font-size: 1.08rem;
+      margin-bottom: 0.7rem;
+      font-family: var(--font);
+      background: #f8fafc;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 4px rgba(44,108,223,0.04);
+    }
+    .input:focus, input[type='text']:focus, select:focus {
+      border: 1.7px solid var(--primary);
+      outline: none;
+      box-shadow: 0 2px 8px rgba(44,108,223,0.10);
+    }
+    .btn {
+      background: linear-gradient(90deg, var(--primary) 60%, #4e8fff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.3rem;
+      font-size: 1.08rem;
+      font-family: var(--font);
+      cursor: pointer;
+      margin-right: 0.18rem;
+      margin-bottom: 0.18rem;
+      transition: background 0.18s, box-shadow 0.18s, transform 0.13s;
+      box-shadow: 0 2px 8px rgba(44,108,223,0.07);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      outline: none;
+    }
+    .btn:hover, .btn:focus {
+      background: linear-gradient(90deg, #1b4e9b 60%, #2d6cdf 100%);
+      box-shadow: 0 4px 16px rgba(44,108,223,0.13);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .btn-accent {
+      background: linear-gradient(90deg, var(--accent) 60%, #ffe6b0 100%);
+      color: #222;
+    }
+    .btn-accent:hover, .btn-accent:focus {
+      background: linear-gradient(90deg, #f7b32b 60%, #ffd36b 100%);
+      color: #222;
+    }
+    .btn-danger {
+      background: linear-gradient(90deg, var(--danger) 60%, #ffbdbd 100%);
+      color: #fff;
+    }
+    .btn-danger:hover, .btn-danger:focus {
+      background: linear-gradient(90deg, #c0392b 60%, #e74c3c 100%);
+      color: #fff;
+    }
+    .btn-success {
+      background: linear-gradient(90deg, var(--success) 60%, #b6f7d2 100%);
+      color: #fff;
+    }
+    .btn-success:hover, .btn-success:focus {
+      background: linear-gradient(90deg, #2ecc71 60%, #43b581 100%);
+      color: #fff;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.18rem;
+      background: rgba(227,233,247,0.22);
+      border-radius: 8px;
+      padding: 0.3rem 0.3rem 0.2rem 0.3rem;
+      margin-bottom: 0.2rem;
+      box-shadow: 0 1px 3px rgba(44,108,223,0.04);
+    }
+    .btn:last-child {
+      margin-right: 0;
+    }
+    .state-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.22rem;
+      margin-bottom: 0.4rem;
+    }
+    .state-chip {
+      background: #e3e9f7;
+      color: #2d6cdf;
+      border-radius: 14px;
+      padding: 0.25rem 0.85rem;
+      font-size: 1.01rem;
+      margin-right: 0.2rem;
+      margin-bottom: 0.2rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border 0.18s, background 0.18s, color 0.18s;
+      user-select: none;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    .state-chip.selected, .state-chip:hover {
+      border: 2px solid var(--primary);
+      background: #dbe6f7;
+      color: #1b4e9b;
+    }
+    .state-chip.accept {
+      color: var(--accept);
+      border-color: var(--accept);
+      background: #eafbe7;
+    }
+    .state-chip.start {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: #e3e9f7;
+    }
+    .tooltip {
+      position: absolute;
+      background: rgba(44,108,223,0.97);
+      color: #fff;
+      padding: 0.38rem 0.9rem;
+      border-radius: 8px;
+      font-size: 1.01rem;
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0.97;
+      white-space: pre-line;
+      box-shadow: 0 2px 8px rgba(44,108,223,0.13);
+      max-width: 260px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+    .feedback {
+      font-size: 1.13rem;
+      margin-top: 0.3rem;
+      min-height: 1.2em;
+      color: var(--primary);
+      font-weight: 600;
+      transition: color 0.2s;
+      letter-spacing: 0.01em;
+    }
+    .feedback.error {
+      color: var(--danger);
+    }
+    .feedback.success {
+      color: var(--success);
+    }
+    @media (max-width: 900px) {
+      #controls {
+        padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+      }
+    }
+    #sidebar-toggle {
+      display: none;
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 100;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      font-size: 2rem;
+      box-shadow: 0 4px 16px rgba(44,108,223,0.13);
+      border: none;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.18s, box-shadow 0.18s;
+    }
+    #sidebar-toggle:active {
+      background: var(--primary-dark);
+    }
+    #sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(44,108,223,0.13);
+      z-index: 99;
+      transition: opacity 0.3s;
+    }
+    #sidebar-close {
+      display: none;
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 2rem;
+      z-index: 101;
+      cursor: pointer;
+    }
+    @media (max-width: 600px) {
+      #sidebar-close {
+        display: block;
+      }
+    }
+    @media (max-width: 1200px) {
+      #canvas-container {
+        max-width: 100vw;
+      }
+    }
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+    #guideOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(44,108,223,0.13);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s;
+    }
+    .guide-modal {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(44,108,223,0.18);
+      padding: 2.2rem 2.2rem 1.5rem 2.2rem;
+      max-width: 480px;
+      width: 95vw;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .guide-content {
+      font-size: 1.18rem;
+      color: #222;
+      margin-bottom: 1.5rem;
+      text-align: left;
+      font-family: var(--font);
+    }
+    .guide-controls {
+      display: flex;
+      gap: 0.7rem;
+      justify-content: center;
+      width: 100%;
+    }
+    #guideOverlay .btn {
+      min-width: 90px;
+      font-size: 1.08rem;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.6rem 1.3rem;
+      border: none;
+      background: linear-gradient(90deg, var(--primary) 60%, #4e8fff 100%);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.18s, box-shadow 0.18s, transform 0.13s;
+      box-shadow: 0 2px 8px rgba(44,108,223,0.07);
+    }
+    #guideOverlay .btn-danger {
+      background: linear-gradient(90deg, var(--danger) 60%, #ffbdbd 100%);
+      color: #fff;
+    }
+    #guideOverlay .btn:active {
+      filter: brightness(0.97);
+      transform: scale(0.97);
+    }
+  </style>
+</head>
+<body>
+  <nav id="navbar">
+    <div class="navbar-title">Automata Builder</div>
+    <div class="navbar-dev">Built by <span style="font-weight:900;">0xmfbk</span></div>
+  </nav>
+  <div id="main-layout">
+    <div id="canvas-container" style="position:relative;">
+      <!-- p5.js canvas will be rendered here -->
+      <div id="tooltip" class="tooltip" style="display:none;"></div>
+    </div>
+    <aside id="controls-sidebar">
+      <span id="feedback" class="feedback"></span>
+      <div class="sidebar-section">
+        <label for="automatonType" class="sidebar-label">Automaton</label>
+        <select id="automatonType" class="sidebar-input" title="Automaton Type">
+          <option value="DFA">DFA</option>
+          <option value="NFA">NFA</option>
+          <option value="ENFA">ε-NFA</option>
+        </select>
+      </div>
+      <div class="controls-section">
+        <label class="sidebar-label">States</label>
+        <div id="stateList" class="state-list"></div>
+        <button class="sidebar-btn primary" id="setStartBtn" title="Set selected state as start">Set Start</button>
+        <button class="sidebar-btn success" id="toggleAcceptBtn" title="Toggle accept state">Toggle Accept</button>
+        <button class="sidebar-btn danger" id="deleteStateBtn" title="Delete selected state">Delete State</button>
+      </div>
+      <div class="controls-section">
+        <label class="sidebar-label">Transitions</label>
+        <button class="sidebar-btn info" id="addTransitionBtn" title="Add transition (click source, then target)">Add Transition</button>
+        <button class="sidebar-btn danger" id="deleteTransitionBtn" title="Delete transition (click transition label)">Delete Transition</button>
+        <button class="sidebar-btn info" id="resetTransitionsBtn" title="Remove all transitions, keep states">Reset Transitions</button>
+      </div>
+      <div class="controls-section">
+        <label class="sidebar-label">Simulation</label>
+        <input type="text" id="inputString" class="sidebar-input" placeholder="Input string (e.g. abba)">
+        <button class="sidebar-btn primary" id="simulateBtn" title="Simulate input string">Simulate</button>
+        <button class="sidebar-btn accent" id="stepBtn" title="Step simulation">Step</button>
+        <button class="sidebar-btn danger" id="resetSimBtn" title="Reset simulation">Reset</button>
+      </div>
+      <div class="controls-section">
+        <label class="sidebar-label">Export/Import</label>
+        <button class="sidebar-btn info" id="exportBtn" title="Export automaton as JSON">Export JSON</button>
+        <button class="sidebar-btn info" id="importBtn" title="Import JSON">Import JSON</button>
+        <button class="sidebar-btn info" id="exportImgBtn" title="Export diagram as PNG">Save as Image</button>
+        <input type="file" id="importFile" style="display:none;">
+      </div>
+      <div class="controls-section">
+        <label class="sidebar-label">More</label>
+        <button class="sidebar-btn danger" id="clearBtn" title="Clear all states and transitions">Reset Automata</button>
+        <a class="sidebar-btn help" href="HELP.html" target="_blank" rel="noopener" title="Show help and instructions">Help</a>
+        <div style="height: 48px;"></div>
+      </div>
+    </aside>
+  </div>
+  <button id="sidebar-toggle" style="display:none;" aria-label="Show controls">☰</button>
+  <div id="sidebar-overlay"></div>
+  <script>
+    // --- Data Structures ---
+    let states = [];
+    let transitions = [];
+    let stateCount = 0;
+    let stateRadius = 36;
+    let selectedState = null;
+    let selectedTransition = null;
+    let draggingState = null;
+    let dragOffset = {x:0, y:0};
+    let addingTransition = false;
+    let transitionFrom = null;
+    let hoveredState = null;
+    let hoveredTransition = null;
+    let automatonType = 'DFA';
+    let simulation = {
+      running: false,
+      input: '',
+      step: 0,
+      currentStates: [],
+      history: [],
+      accepted: false,
+      finished: false,
+      path: [],
+      lastTransition: null
+    };
+    let needsRedraw = true;
+
+    // --- UI Elements ---
+    const stateListDiv = document.getElementById('stateList');
+    const setStartBtn = document.getElementById('setStartBtn');
+    const toggleAcceptBtn = document.getElementById('toggleAcceptBtn');
+    const deleteStateBtn = document.getElementById('deleteStateBtn');
+    const addTransitionBtn = document.getElementById('addTransitionBtn');
+    const deleteTransitionBtn = document.getElementById('deleteTransitionBtn');
+    const inputString = document.getElementById('inputString');
+    const simulateBtn = document.getElementById('simulateBtn');
+    const stepBtn = document.getElementById('stepBtn');
+    const resetSimBtn = document.getElementById('resetSimBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    const importFile = document.getElementById('importFile');
+    const exportImgBtn = document.getElementById('exportImgBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const resetTransitionsBtn = document.getElementById('resetTransitionsBtn');
+    const feedbackDiv = document.getElementById('feedback');
+    const automatonTypeSelect = document.getElementById('automatonType');
+    let tooltip = document.getElementById('tooltip');
+    let tooltipTimeout = null;
+
+    // --- p5.js Setup ---
+    let canvas;
+    function setup() {
+      const container = document.getElementById('canvas-container');
+      const w = container.offsetWidth;
+      const h = container.offsetHeight;
+      canvas = createCanvas(w, h);
+      canvas.parent('canvas-container');
+      needsRedraw = true;
+      // Keep canvas in sync with container size
+      const ro = new ResizeObserver(() => {
+        resizeCanvas(container.offsetWidth, container.offsetHeight);
+        needsRedraw = true;
+      });
+      ro.observe(container);
+    }
+    function windowResized() {
+      const container = document.getElementById('canvas-container');
+      const w = container.offsetWidth;
+      const h = container.offsetHeight;
+      resizeCanvas(w, h);
+      needsRedraw = true;
+    }
+    function draw() {
+      if (needsRedraw) {
+        drawAutomata();
+        needsRedraw = false;
+      }
+    }
+
+    // --- ResizeObserver for canvas-container ---
+    const container = document.getElementById('canvas-container');
+    const ro = new ResizeObserver(() => {
+      resizeCanvas(container.offsetWidth, container.offsetHeight);
+      needsRedraw = true;
+    });
+    ro.observe(container);
+
+    // --- State/Transition Logic ---
+    function snapToGrid(x, y, grid=40) {
+      return [Math.round(x / grid) * grid, Math.round(y / grid) * grid];
+    }
+    function isOverlapping(x, y, excludeState=null) {
+      for (let s of states) {
+        if (s === excludeState) continue;
+        if (dist(x, y, s.x, s.y) < stateRadius * 2.2) return true;
+      }
+      return false;
+    }
+    function addState(x, y, name=null, isStart=false, isAccept=false) {
+      [x, y] = snapToGrid(x, y);
+      if (isOverlapping(x, y)) {
+        showFeedback('Too close to another state.', true);
+        return;
+      }
+      if (!name) name = nextStateName();
+      states.push({ x, y, name, isStart, isAccept });
+      stateCount++;
+      updateStateList();
+      needsRedraw = true;
+    }
+    function nextStateName() {
+      // Use q0, q1, q2, ...
+      let n = stateCount;
+      let name = 'q' + n;
+      // Ensure unique
+      while (states.some(s => s.name === name)) {
+        n++;
+        name = 'q' + n;
+      }
+      return name;
+    }
+    function getStateAt(x, y) {
+      for (let s of states) {
+        if (dist(x, y, s.x, s.y) < stateRadius) return s;
+      }
+      return null;
+    }
+    function getTransitionAt(x, y) {
+      for (let t of transitions) {
+        let from = t.from, to = t.to;
+        if (from === to) {
+          // Self-loop: check near the loop label
+          let mid = transitionLabelPos(t);
+          if (dist(x, y, mid.x, mid.y) < 18) return t;
+          continue;
+        }
+        // Check near the bezier curve (sample points)
+        let d = dist(from.x, from.y, to.x, to.y);
+        let offset = stateRadius;
+        let start = {
+          x: from.x + (to.x - from.x) * offset / d,
+          y: from.y + (to.y - from.y) * offset / d
+        };
+        let end = {
+          x: to.x - (to.x - from.x) * offset / d,
+          y: to.y - (to.y - from.y) * offset / d
+        };
+        let multi = transitions.filter(tr => tr.from === from && tr.to === to);
+        let idx = multi.indexOf(t);
+        let curve;
+        if (typeof t.curveOffset === 'number') {
+          curve = t.curveOffset;
+        } else if (multi.length > 1) {
+          curve = (idx - (multi.length-1)/2) * 12;
+        } else {
+          curve = 0;
+        }
+        let mx = (start.x + end.x) / 2 + curve * (to.y - from.y) / d;
+        let my = (start.y + end.y) / 2 - curve * (to.x - from.x) / d;
+        // Sample points along the bezier using the current curve
+        for (let tVal = 0.05; tVal < 1; tVal += 0.05) {
+          let bx = bezierPoint(start.x, mx, mx, end.x, tVal);
+          let by = bezierPoint(start.y, my, my, end.y, tVal);
+          if (dist(x, y, bx, by) < 12) return t;
+        }
+      }
+      return null;
+    }
+    function addTransition(from, to, symbol) {
+      if (!symbol) return false;
+      // Prevent duplicate transition symbols from the same source state
+      let exists = transitions.some(t =>
+        t.from === from && t.symbol === symbol
+      );
+      if (exists) {
+        showFeedback('Duplicate transition symbol from the same state is not allowed.', true);
+        return false;
+      }
+      transitions.push({ from, to, symbol, curveOffset: 0 });
+      drawAutomata();
+      return true;
+    }
+    function removeState(state) {
+      // Remove transitions involving this state
+      transitions = transitions.filter(t => t.from !== state && t.to !== state);
+      states = states.filter(s => s !== state);
+      if (selectedState === state) selectedState = null;
+      updateStateList();
+      drawAutomata();
+    }
+    function removeTransition(transition) {
+      transitions = transitions.filter(t => t !== transition);
+      if (selectedTransition === transition) selectedTransition = null;
+      drawAutomata();
+    }
+    function toggleAccept(state) {
+      state.isAccept = !state.isAccept;
+      drawAutomata();
+      updateStateList();
+    }
+    function setStart(state) {
+      states.forEach(s => s.isStart = false);
+      state.isStart = true;
+      drawAutomata();
+      updateStateList();
+    }
+    function renameState(state, newName) {
+      if (!newName || states.some(s => s.name === newName && s !== state)) {
+        showFeedback('Invalid or duplicate state name.', true);
+        return false;
+      }
+      state.name = newName;
+      drawAutomata();
+      updateStateList();
+      return true;
+    }
+
+    // --- Drawing ---
+    function drawAutomata() {
+      background('#f4f6fa');
+      // Draw grid
+      stroke('#e3e9f7');
+      for (let x = 0; x < width; x += 40) line(x, 0, x, height);
+      for (let y = 0; y < height; y += 40) line(0, y, width, y);
+
+      // Draw transitions
+      for (let t of transitions) {
+        let highlight = (t === hoveredTransition || t === selectedTransition || t === simulation.lastTransition);
+        drawTransition(t, highlight);
+      }
+      // Draw states
+      for (let s of states) {
+        drawState(s, s === hoveredState || s === selectedState);
+      }
+      // Draw transition in progress
+      if (addingTransition && transitionFrom) {
+        stroke('#f7b32b');
+        strokeWeight(3);
+        let from = transitionFrom;
+        let to = { x: mouseX, y: mouseY };
+        drawArrow(from.x, from.y, to.x, to.y, stateRadius);
+      }
+      // Draw simulation highlight
+      if (simulation.running && simulation.currentStates.length > 0) {
+        for (let s of simulation.currentStates) {
+          noFill();
+          stroke('#43b581');
+          strokeWeight(5);
+          ellipse(s.x, s.y, stateRadius * 2.3, stateRadius * 2.3);
+        }
+      }
+    }
+    function drawState(s, highlight=false) {
+      push();
+      // Accept state: double circle
+      if (s.isAccept) {
+        stroke(getComputedStyle(document.documentElement).getPropertyValue('--accept'));
+        strokeWeight(3.5);
+        noFill();
+        ellipse(s.x, s.y, (stateRadius+7)*2, (stateRadius+7)*2);
+      }
+      // Main circle
+      if (highlight) {
+        stroke('#f7b32b');
+        strokeWeight(5);
+      } else {
+        stroke(getComputedStyle(document.documentElement).getPropertyValue('--state-border'));
+        strokeWeight(2.5);
+      }
+      fill(getComputedStyle(document.documentElement).getPropertyValue('--state'));
+      ellipse(s.x, s.y, stateRadius * 2, stateRadius * 2);
+
+      // Start state: arrow
+      if (s.isStart) {
+        stroke(getComputedStyle(document.documentElement).getPropertyValue('--start-arrow'));
+        strokeWeight(3.5);
+        // Draw a straight arrow from the right, not covering the state name
+        let angle = 0; // from the right
+        let ax = s.x - Math.cos(angle) * (stateRadius + 30);
+        let ay = s.y - Math.sin(angle) * (stateRadius + 30);
+        drawArrow(ax, ay, s.x - Math.cos(angle) * stateRadius, s.y - Math.sin(angle) * stateRadius, 0, 18);
+      }
+      // State name
+      fill('#222');
+      noStroke();
+      textAlign(CENTER, CENTER);
+      textSize(20);
+      text(s.name, s.x, s.y);
+      pop();
+    }
+    function drawTransition(t, highlight=false) {
+      let from = t.from, to = t.to;
+      let same = from === to;
+      if (same) {
+        // --- Optimized Full Circle Self-Loop ---
+        let loopRadius = stateRadius * 0.85; // visually distinct, scales with state size
+        let cx = from.x;
+        let cy = from.y - stateRadius - loopRadius; // center of loop above state
+        // Draw full circle
+        noFill();
+        stroke(highlight ? '#f7b32b' : getComputedStyle(document.documentElement).getPropertyValue('--transition'));
+        strokeWeight(highlight ? 3.5 : 2);
+        ellipse(cx, cy, loopRadius * 2, loopRadius * 2);
+        // Arrowhead at bottom of loop, pointing to state
+        let arrowAngle = PI / 2; // downward
+        let ax = cx + loopRadius * Math.cos(arrowAngle);
+        let ay = cy + loopRadius * Math.sin(arrowAngle);
+        drawArrow(ax, ay, from.x, from.y - stateRadius, 0, 18);
+        // Label above the loop
+        fill(highlight ? '#f7b32b' : '#222');
+        noStroke();
+        textAlign(CENTER, CENTER);
+        textSize(18);
+        text(t.symbol, cx, cy - loopRadius - 16);
+        return;
+      }
+      // Normal or curved transition
+      let d = dist(from.x, from.y, to.x, to.y);
+      let offset = stateRadius;
+      let start = {
+        x: from.x + (to.x - from.x) * offset / d,
+        y: from.y + (to.y - from.y) * offset / d
+      };
+      let end = {
+        x: to.x - (to.x - from.x) * offset / d,
+        y: to.y - (to.y - from.y) * offset / d
+      };
+      let multi = transitions.filter(tr => tr.from === from && tr.to === to);
+      let idx = multi.indexOf(t);
+      let curve;
+      if (typeof t.curveOffset === 'number') {
+        curve = t.curveOffset;
+      } else if (multi.length > 1) {
+        curve = (idx - (multi.length-1)/2) * 12;
+      } else {
+        curve = 0;
+      }
+      let mx = (start.x + end.x) / 2 + curve * (to.y - from.y) / d;
+      let my = (start.y + end.y) / 2 - curve * (to.x - from.x) / d;
+      noFill();
+      stroke(highlight ? '#f7b32b' : getComputedStyle(document.documentElement).getPropertyValue('--transition'));
+      strokeWeight(highlight ? 3.5 : 2);
+      bezier(start.x, start.y, mx, my, mx, my, end.x, end.y);
+      // Arrowhead
+      let tVal = 0.95;
+      let ax = bezierPoint(start.x, mx, mx, end.x, tVal);
+      let ay = bezierPoint(start.y, my, my, end.y, tVal);
+      let bx = bezierPoint(start.x, mx, mx, end.x, tVal+0.01);
+      let by = bezierPoint(start.y, my, my, end.y, tVal+0.01);
+      drawArrow(ax, ay, bx, by, 0, 18);
+      // Label
+      let labelPos = {x: mx, y: my};
+      fill(highlight ? '#f7b32b' : '#222');
+      noStroke();
+      textAlign(CENTER, CENTER);
+      textSize(16);
+      text(t.symbol, labelPos.x, labelPos.y - 10);
+      // Draw draggable handle if hovered
+      if (t === hoveredTransition) {
+        fill('#60a5fa');
+        stroke('#2563eb');
+        strokeWeight(2);
+        ellipse(mx, my, 18, 18);
+      }
+    }
+    function drawArrow(x1, y1, x2, y2, offset=0, size=18) {
+      let angle = atan2(y2 - y1, x2 - x1);
+      let tx = x2 - offset * cos(angle);
+      let ty = y2 - offset * sin(angle);
+      line(x1, y1, tx, ty);
+      push();
+      translate(tx, ty);
+      rotate(angle);
+      fill(getComputedStyle(document.documentElement).getPropertyValue('--primary'));
+      noStroke();
+      triangle(0, 0, -size/2, -size/2, -size/2, size/2);
+      pop();
+    }
+    function transitionLabelPos(t) {
+      let from = t.from, to = t.to;
+      if (from === to) {
+        return { x: from.x, y: from.y - stateRadius - 28 };
+      } else {
+        let d = dist(from.x, from.y, to.x, to.y);
+        let offset = stateRadius;
+        let start = {
+          x: from.x + (to.x - from.x) * offset / d,
+          y: from.y + (to.y - from.y) * offset / d
+        };
+        let end = {
+          x: to.x - (to.x - from.x) * offset / d,
+          y: to.y - (to.y - from.y) * offset / d
+        };
+        let multi = transitions.filter(tr => tr.from === from && tr.to === to);
+        let idx = multi.indexOf(t);
+        let curve;
+        if (typeof t.curveOffset === 'number') {
+          curve = t.curveOffset;
+        } else if (multi.length > 1) {
+          curve = (idx - (multi.length-1)/2) * 24;
+        } else {
+          curve = 0;
+        }
+        let mx = (start.x + end.x) / 2 + curve * (to.y - from.y) / d;
+        let my = (start.y + end.y) / 2 - curve * (to.x - from.x) / d;
+        return { x: mx, y: my - 10 };
+      }
+    }
+
+    // --- Mouse Interactions ---
+    let draggingCurve = null;
+    let dragCurveStart = 0;
+    let dragCurveMouseStart = {x:0, y:0};
+    let panning = false;
+    let panStart = {x:0, y:0};
+    let panMouseStart = {x:0, y:0};
+    function mousePressed() {
+      if (mouseButton === RIGHT) {
+        // Cancel transition-adding mode if active
+        if (addingTransition) {
+          addingTransition = false;
+          transitionFrom = null;
+          drawAutomata();
+          showFeedback('Transition creation cancelled.', false);
+          return;
+        }
+        // Start panning if not on a state or transition
+        let s = getStateAt(mouseX, mouseY);
+        let t = getTransitionAt(mouseX, mouseY);
+        if (!s && !t) {
+          panning = true;
+          panMouseStart = {x: mouseX, y: mouseY};
+          panStart = states.map(st => ({x: st.x, y: st.y}));
+          return;
+        }
+      }
+      if (mouseButton === LEFT && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+        let s = getStateAt(mouseX, mouseY);
+        let t = getTransitionAt(mouseX, mouseY);
+        // Check if clicking on a transition handle
+        if (t && !s) {
+          let mid = transitionLabelPos(t);
+          if (dist(mouseX, mouseY, mid.x, mid.y) < 18) {
+            draggingCurve = t;
+            dragCurveStart = t.curveOffset || 0;
+            dragCurveMouseStart = {x: mouseX, y: mouseY};
+            return;
+          }
+        }
+        if (addingTransition) {
+          if (transitionFrom && s) {
+            // Prompt for symbol
+            let symbol = prompt('Enter transition symbol (comma for multiple, ε for epsilon):');
+            if (symbol !== null) {
+              symbol.split(',').map(sym => sym.trim()).forEach(sym => {
+                if (sym) addTransition(transitionFrom, s, sym);
+              });
+            }
+            addingTransition = false;
+            transitionFrom = null;
+            drawAutomata();
+            return;
+          }
+        }
+        if (t && deleteTransitionBtn.classList.contains('active')) {
+          removeTransition(t);
+          deleteTransitionBtn.classList.remove('active');
+          showFeedback('Transition deleted.', false);
+          return;
+        }
+        if (s) {
+          if (deleteStateBtn.classList.contains('active')) {
+            removeState(s);
+            deleteStateBtn.classList.remove('active');
+            showFeedback('State deleted.', false);
+            return;
+          }
+          if (toggleAcceptBtn.classList.contains('active')) {
+            toggleAccept(s);
+            toggleAcceptBtn.classList.remove('active');
+            showFeedback('Toggled accept state.', false);
+            return;
+          }
+          if (setStartBtn.classList.contains('active')) {
+            setStart(s);
+            setStartBtn.classList.remove('active');
+            showFeedback('Set as start state.', false);
+            return;
+          }
+          // Select state for dragging or editing
+          selectedState = s;
+          draggingState = s;
+          dragOffset.x = mouseX - s.x;
+          dragOffset.y = mouseY - s.y;
+          updateStateList();
+          drawAutomata();
+        } else if (!t) {
+          // Add new state only if not on a transition
+          addState(mouseX, mouseY);
+          showFeedback('State added.', false);
+        }
+      }
+    }
+    function mouseReleased() {
+      draggingCurve = null;
+      draggingState = null;
+      panning = false;
+    }
+    function mouseDragged() {
+      if (panning) {
+        let dx = mouseX - panMouseStart.x;
+        let dy = mouseY - panMouseStart.y;
+        states.forEach((s, i) => {
+          s.x = panStart[i].x + dx;
+          s.y = panStart[i].y + dy;
+        });
+        needsRedraw = true;
+        return;
+      }
+      if (draggingCurve) {
+        // Drag to adjust curveOffset
+        let dx = mouseX - dragCurveMouseStart.x;
+        let dy = mouseY - dragCurveMouseStart.y;
+        // Use perpendicular to the line
+        let from = draggingCurve.from, to = draggingCurve.to;
+        let d = dist(from.x, from.y, to.x, to.y);
+        let perp = ((to.y - from.y) * dx - (to.x - from.x) * dy) / d;
+        draggingCurve.curveOffset = dragCurveStart + perp * 0.2;
+        needsRedraw = true;
+        return;
+      }
+      if (draggingState) {
+        let [x, y] = snapToGrid(mouseX - dragOffset.x, mouseY - dragOffset.y);
+        if (!isOverlapping(x, y, draggingState)) {
+          draggingState.x = x;
+          draggingState.y = y;
+          needsRedraw = true;
+        }
+      }
+    }
+    function mouseMoved() {
+      hoveredState = getStateAt(mouseX, mouseY);
+      hoveredTransition = getTransitionAt(mouseX, mouseY);
+      drawAutomata();
+      // Tooltip
+      if (hoveredState) {
+        showTooltip(hoveredState.name, mouseX, mouseY);
+      } else if (hoveredTransition) {
+        showTooltip(hoveredTransition.symbol, mouseX, mouseY);
+      } else {
+        hideTooltip();
+      }
+    }
+    function doubleClicked() {
+      let s = getStateAt(mouseX, mouseY);
+      if (s) {
+        // Edit state name
+        let newName = prompt('Rename state:', s.name);
+        if (newName && newName !== s.name) {
+          if (!renameState(s, newName)) {
+            showFeedback('Invalid or duplicate state name.', true);
+          } else {
+            showFeedback('State renamed.', false);
+          }
+        }
+      }
+    }
+    function mouseOut() {
+      hoveredState = null;
+      hoveredTransition = null;
+      hideTooltip();
+      drawAutomata();
+    }
+
+    // --- UI Logic ---
+    function updateStateList() {
+      stateListDiv.innerHTML = '';
+      states.forEach(s => {
+        let chip = document.createElement('span');
+        chip.className = 'state-chip';
+        if (s === selectedState) chip.classList.add('selected');
+        if (s.isAccept) chip.classList.add('accept');
+        if (s.isStart) chip.classList.add('start');
+        chip.textContent = s.name;
+        chip.title = 'Click to select. Double-click to rename.';
+        chip.onclick = () => {
+          selectedState = s;
+          updateStateList();
+          drawAutomata();
+        };
+        chip.ondblclick = () => {
+          let newName = prompt('Rename state:', s.name);
+          if (newName && newName !== s.name) {
+            if (!renameState(s, newName)) {
+              showFeedback('Invalid or duplicate state name.', true);
+            } else {
+              showFeedback('State renamed.', false);
+            }
+          }
+        };
+        stateListDiv.appendChild(chip);
+      });
+    }
+    setStartBtn.onclick = () => {
+      if (selectedState) {
+        setStart(selectedState);
+        showFeedback('Set as start state.', false);
+      } else {
+        setStartBtn.classList.add('active');
+        showFeedback('Click a state to set as start.', false);
+      }
+    };
+    toggleAcceptBtn.onclick = () => {
+      if (selectedState) {
+        toggleAccept(selectedState);
+        showFeedback('Toggled accept state.', false);
+      } else {
+        toggleAcceptBtn.classList.add('active');
+        showFeedback('Click a state to toggle accept.', false);
+      }
+    };
+    deleteStateBtn.onclick = () => {
+      if (selectedState) {
+        removeState(selectedState);
+        showFeedback('State deleted.', false);
+      } else {
+        deleteStateBtn.classList.add('active');
+        showFeedback('Click a state to delete.', false);
+      }
+    };
+    addTransitionBtn.onclick = () => {
+      if (selectedState) {
+        addingTransition = true;
+        transitionFrom = selectedState;
+        showFeedback('Click target state to add transition.', false);
+      } else {
+        showFeedback('Select a source state first.', true);
+      }
+    };
+    deleteTransitionBtn.onclick = () => {
+      deleteTransitionBtn.classList.add('active');
+      showFeedback('Click a transition label to delete.', false);
+    };
+    clearBtn.onclick = () => {
+      if (confirm('Clear all states and transitions?')) {
+        states = [];
+        transitions = [];
+        stateCount = 0;
+        selectedState = null;
+        selectedTransition = null;
+        simulation.running = false;
+        updateStateList();
+        drawAutomata();
+        showFeedback('Cleared.', false);
+      }
+    };
+    resetTransitionsBtn.onclick = () => {
+      if (transitions.length === 0) {
+        showFeedback('No transitions to reset.', true);
+        return;
+      }
+      if (confirm('Remove all transitions? States will be kept.')) {
+        transitions = [];
+        drawAutomata();
+        showFeedback('All transitions removed.', false);
+      }
+    };
+    automatonTypeSelect.onchange = () => {
+      automatonType = automatonTypeSelect.value;
+      showFeedback('Automaton type set to ' + automatonType, false);
+      alert('Automaton type changed to ' + automatonType + '.\nNote: No automatic conversion is performed; only the simulation mode is changed.');
+    };
+
+    // --- Simulation Logic ---
+    simulateBtn.onclick = () => {
+      let input = inputString.value.trim();
+      if (!input && automatonType !== 'ENFA') {
+        showFeedback('Enter an input string.', true);
+        return;
+      }
+      if (states.length === 0) {
+        showFeedback('No states in automaton.', true);
+        return;
+      }
+      let start = states.find(s => s.isStart);
+      if (!start) {
+        showFeedback('No start state set.', true);
+        return;
+      }
+      simulation.input = input;
+      simulation.step = 0;
+      simulation.running = true;
+      simulation.finished = false;
+      simulation.accepted = false;
+      simulation.history = [];
+      simulation.currentStates = [start];
+      drawAutomata();
+      showFeedback('Simulation started. Use Step or Simulate.', false);
+      runSimulationStep();
+    };
+    stepBtn.onclick = () => {
+      if (!simulation.running) {
+        simulateBtn.onclick();
+        return;
+      }
+      runSimulationStep();
+    };
+    resetSimBtn.onclick = () => {
+      simulation.running = false;
+      simulation.finished = false;
+      simulation.currentStates = [];
+      simulation.history = [];
+      simulation.input = '';
+      simulation.step = 0;
+      simulation.accepted = false;
+      simulation.lastTransition = null;
+      drawAutomata();
+      showFeedback('Simulation reset.', false);
+    };
+    function runSimulationStep() {
+      if (!simulation.running || simulation.finished) return;
+      let input = simulation.input;
+      let step = simulation.step;
+      let currentStates = simulation.currentStates;
+      let nextStates = [];
+      let symbol = input[step] || '';
+      let isENFA = automatonType === 'ENFA';
+      let isNFA = automatonType === 'NFA' || isENFA;
+      simulation.lastTransition = null;
+      if (automatonType === 'DFA') {
+        let s = currentStates[0];
+        let found = transitions.find(t => t.from === s && t.symbol === symbol);
+        if (found) {
+          nextStates = [found.to];
+          simulation.lastTransition = found;
+        }
+      } else {
+        let closure = (statesArr, sym) => {
+          let result = new Set();
+          let stack = [...statesArr];
+          while (stack.length) {
+            let st = stack.pop();
+            result.add(st);
+            if (isENFA) {
+              transitions.forEach(t => {
+                if (t.from === st && t.symbol === 'ε' && !result.has(t.to)) {
+                  stack.push(t.to);
+                }
+              });
+            }
+          }
+          if (sym) {
+            let next = [];
+            result.forEach(st => {
+              transitions.forEach(t => {
+                if (t.from === st && t.symbol === sym) {
+                  next.push(t.to);
+                  simulation.lastTransition = t;
+                }
+              });
+            });
+            return closure(next, null);
+          }
+          return Array.from(result);
+        };
+        let curr = isENFA ? closure(currentStates, null) : currentStates;
+        nextStates = closure(curr, symbol);
+      }
+      simulation.history.push({ states: currentStates, symbol });
+      simulation.currentStates = nextStates;
+      simulation.step++;
+      needsRedraw = true;
+      let accept = nextStates.some(s => s.isAccept);
+      if (simulation.step >= simulation.input.length || nextStates.length === 0) {
+        simulation.running = false;
+        simulation.finished = true;
+        simulation.accepted = accept;
+        showFeedback(accept ? 'Input accepted!' : 'Input rejected.', !accept);
+        showSimulationPath();
+      } else {
+        showFeedback('Step ' + simulation.step + ': ' + (nextStates.map(s => s.name).join(', ') || '∅'), false);
+      }
+    }
+
+    // --- Save/Load/Export ---
+    exportBtn.onclick = () => {
+      let data = {
+        states: states.map(s => ({
+          x: s.x, y: s.y, name: s.name, isStart: s.isStart, isAccept: s.isAccept
+        })),
+        transitions: transitions.map(t => ({
+          from: states.indexOf(t.from),
+          to: states.indexOf(t.to),
+          symbol: t.symbol
+        })),
+        automatonType
+      };
+      let blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+      let url = URL.createObjectURL(blob);
+      let a = document.createElement('a');
+      a.href = url;
+      a.download = 'automaton.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showFeedback('Exported as JSON.', false);
+    };
+    importBtn.onclick = () => {
+      importFile.click();
+    };
+    importFile.onchange = (e) => {
+      let file = e.target.files[0];
+      if (!file) return;
+      let reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          let data = JSON.parse(evt.target.result);
+          states = [];
+          transitions = [];
+          stateCount = 0;
+          data.states.forEach(s => addState(s.x, s.y, s.name, s.isStart, s.isAccept));
+          data.transitions.forEach(t => {
+            addTransition(states[t.from], states[t.to], t.symbol);
+          });
+          automatonType = data.automatonType || 'DFA';
+          automatonTypeSelect.value = automatonType;
+          showFeedback('Imported automaton.', false);
+        } catch (e) {
+          showFeedback('Invalid JSON file.', true);
+        }
+      };
+      reader.readAsText(file);
+    };
+    exportImgBtn.onclick = () => {
+      saveCanvas(canvas, 'automaton', 'png');
+      showFeedback('Diagram exported as image.', false);
+    };
+
+    // --- Feedback & Tooltip ---
+    function showFeedback(msg, error=false) {
+      feedbackDiv.textContent = msg;
+      feedbackDiv.className = 'feedback' + (error ? ' error' : (msg.includes('accept') ? ' success' : ''));
+      if (tooltipTimeout) clearTimeout(tooltipTimeout);
+      tooltipTimeout = setTimeout(() => {
+        feedbackDiv.textContent = '';
+      }, 5000);
+    }
+    function showTooltip(msg, x, y) {
+      tooltip.style.display = 'block';
+      tooltip.textContent = msg;
+      let rect = canvas.elt.getBoundingClientRect();
+      tooltip.style.left = (x + rect.left + 18) + 'px';
+      tooltip.style.top = (y + rect.top - 10) + 'px';
+    }
+    function hideTooltip() {
+      tooltip.style.display = 'none';
+    }
+
+    // --- p5.js Event Bindings ---
+    window.mousePressed = mousePressed;
+    window.mouseReleased = mouseReleased;
+    window.mouseDragged = mouseDragged;
+    window.mouseMoved = mouseMoved;
+    window.doubleClicked = doubleClicked;
+    window.mouseOut = mouseOut;
+
+    // --- Initial UI Setup ---
+    updateStateList();
+    drawAutomata();
+
+    // --- Show Simulation Path ---
+    function showSimulationPath() {
+      if (!simulation.history.length) return;
+      let path = simulation.history.map(
+        (step, i) => `Step ${i+1}: ${step.states.map(s => s.name).join(', ')} [${step.symbol}]`
+      ).join('\n');
+      feedbackDiv.textContent += '\n' + path;
+    }
+
+    // --- Only call needsRedraw = true instead of drawAutomata in all other places ---
+    // --- requestAnimationFrame for smooth dragging ---
+    function animate() {
+      requestAnimationFrame(animate);
+      draw();
+    }
+    animate();
+
+    // Sidebar toggle for mobile
+    const sidebar = document.getElementById('controls-bar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const overlay = document.getElementById('sidebar-overlay');
+    const closeBtn = document.getElementById('sidebar-close');
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+    }
+    toggleBtn.onclick = openSidebar;
+    overlay.onclick = closeSidebar;
+    closeBtn.onclick = closeSidebar;
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 600) {
+        closeSidebar();
+        sidebar.style.display = '';
+      }
+    });
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
+    });
+    toggleBtn.onclick = () => {
+      if (sidebar.style.display === 'block') {
+        sidebar.style.display = 'none';
+      } else {
+        sidebar.style.display = 'block';
+        sidebar.style.position = 'fixed';
+        sidebar.style.bottom = '70px';
+        sidebar.style.right = '10px';
+        sidebar.style.width = '90vw';
+        sidebar.style.maxWidth = '400px';
+        sidebar.style.zIndex = '999';
+        sidebar.style.background = 'var(--glass)';
+        sidebar.style.boxShadow = '0 8px 32px rgba(44,108,223,0.13)';
+        sidebar.style.border = '1.5px solid #e3e9f7';
+        sidebar.style.borderRadius = '22px';
+        sidebar.style.padding = '2.2rem 1.5rem 1.5rem 1.5rem';
+      }
+    };
+    // Hide sidebar when clicking outside (mobile)
+    document.addEventListener('click', function(e) {
+      if (window.innerWidth <= 600 && sidebar.style.display === 'block') {
+        if (!sidebar.contains(e.target) && e.target !== toggleBtn) {
+          sidebar.style.display = 'none';
+        }
+      }
+    });
+    // Prevent context menu on canvas
+    document.addEventListener('contextmenu', function(e) {
+      if (e.target.tagName === 'CANVAS') {
+        e.preventDefault();
+      }
+    });
+
+    // --- Keyboard Interactions ---
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && addingTransition) {
+        addingTransition = false;
+        transitionFrom = null;
+        drawAutomata();
+        showFeedback('Transition creation cancelled.', false);
+      }
+    });
+  </script>
+</body>
+</html> 

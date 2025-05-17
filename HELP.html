@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automata Builder Help & Guide</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #60a5fa;
+      --accent: #fbbf24;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --help: #7c3aed;
+      --bg: linear-gradient(135deg, #e3e9f7 0%, #f4f6fa 100%);
+      --glass: rgba(255,255,255,0.75);
+      --glass-blur: blur(14px);
+      --font: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+    }
+    body {
+      background: var(--bg);
+      font-family: var(--font);
+      color: #222;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .help-container {
+      background: var(--glass);
+      backdrop-filter: var(--glass-blur);
+      border-radius: 22px;
+      box-shadow: 0 8px 32px rgba(44,108,223,0.13);
+      margin: 2.5rem 0 2.5rem 0;
+      padding: 2.5rem 2.2rem 2.2rem 2.2rem;
+      max-width: 700px;
+      width: 95vw;
+      display: flex;
+      flex-direction: column;
+      gap: 2.2rem;
+    }
+    h1 {
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      letter-spacing: 1.5px;
+      text-align: center;
+      background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+    .toc {
+      background: rgba(124,58,237,0.07);
+      border-radius: 14px;
+      padding: 1.2rem 1.2rem 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(44,108,223,0.07);
+      font-size: 1.13rem;
+    }
+    .toc b {
+      color: var(--primary);
+      font-size: 1.15rem;
+      letter-spacing: 0.5px;
+    }
+    .toc a {
+      display: block;
+      color: #2563eb;
+      text-decoration: none;
+      margin: 0.3rem 0;
+      font-weight: 600;
+      transition: color 0.18s;
+    }
+    .toc a:hover {
+      color: #7c3aed;
+      text-decoration: underline;
+    }
+    h2 {
+      color: var(--help);
+      font-size: 1.45rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.7rem;
+      letter-spacing: 1px;
+    }
+    h3 {
+      color: var(--primary);
+      font-size: 1.18rem;
+      margin-top: 1.1rem;
+      margin-bottom: 0.4rem;
+    }
+    ul, ol {
+      font-size: 1.08rem;
+      margin-left: 1.2rem;
+      margin-bottom: 1.2rem;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
+    .tip {
+      background: linear-gradient(90deg, #e0e7ff 0%, #a78bfa 100%);
+      border-left: 5px solid var(--primary);
+      border-radius: 10px;
+      padding: 0.7rem 1.1rem;
+      margin: 1.1rem 0;
+      color: #222;
+      font-size: 1.08rem;
+      box-shadow: 0 1px 6px rgba(44,108,223,0.07);
+    }
+    .kbd {
+      display: inline-block;
+      background: #f4f6fa;
+      border: 1.5px solid #dbe6f7;
+      border-radius: 6px;
+      padding: 0.1em 0.6em;
+      font-size: 1em;
+      font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+      color: #2563eb;
+      margin: 0 0.1em;
+      box-shadow: 0 1px 2px rgba(44,108,223,0.04);
+    }
+    @media (max-width: 600px) {
+      .help-container {
+        padding: 1.1rem 0.5rem 1.1rem 0.5rem;
+        margin: 1.2rem 0 1.2rem 0;
+      }
+      h1 {
+        font-size: 1.3rem;
+      }
+      h2 {
+        font-size: 1.08rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="help-container">
+    <h1>Automata Builder<br>Advanced User Guide</h1>
+    <div class="toc">
+      <b>Table of Contents</b>
+      <a href="#features">Features & Workflow</a>
+      <a href="#types">Automata Types</a>
+      <a href="#canvas">Canvas & Sidebar Controls</a>
+      <a href="#states">States</a>
+      <a href="#transitions">Transitions</a>
+      <a href="#simulation">Simulation</a>
+      <a href="#export">Import, Export & Save</a>
+      <a href="#shortcuts">Shortcuts & Pro Tips</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <h2 id="features">Features & Workflow</h2>
+    <ul>
+      <li><b>Add State:</b> Click on empty canvas space (not on a transition) to add a new state (auto-named q0, q1, ...).</li>
+      <li><b>Move State:</b> Drag a state to reposition it. States snap to a grid and cannot overlap.</li>
+      <li><b>Rename State:</b> Double-click a state (on canvas or in the sidebar) to rename. Names must be unique.</li>
+      <li><b>Set Start State:</b> Select a state, then click <b>Set Start</b> in the sidebar, or activate the button and click a state.</li>
+      <li><b>Toggle Accept State:</b> Select a state, then click <b>Toggle Accept</b> in the sidebar, or activate the button and click a state.</li>
+      <li><b>Delete State:</b> Select a state, then click <b>Delete State</b> in the sidebar, or activate the button and click a state.</li>
+      <li><b>Add Transition:</b> Select a source state, click <b>Add Transition</b>, then click the target state. Enter the transition symbol (comma-separated for multiple, use <span class="kbd">ε</span> for epsilon transitions).</li>
+      <li><b>Delete Transition:</b> Click <b>Delete Transition</b>, then click the transition label you want to remove.</li>
+      <li><b>Simulate Input:</b> Enter an input string in the sidebar. Click <b>Simulate</b> to run, or <b>Step</b> to step through one symbol at a time. Current states and transitions are highlighted. The full path is shown after simulation. Click <b>Reset</b> to clear.</li>
+    </ul>
+    <h2 id="types">Automata Types</h2>
+    <ul>
+      <li><b>DFA:</b> Deterministic Finite Automaton (one transition per symbol per state).</li>
+      <li><b>NFA:</b> Nondeterministic Finite Automaton (multiple transitions per symbol allowed).</li>
+      <li><b>ε-NFA:</b> NFA with epsilon (empty string) transitions. Use <span class="kbd">ε</span> as a symbol.</li>
+    </ul>
+    <h2 id="canvas">Canvas & Sidebar Controls</h2>
+    <ul>
+      <li><b>Pan Canvas:</b> Right-click and drag on empty canvas space to move the entire automaton.</li>
+      <li><b>Responsive Canvas:</b> The canvas automatically resizes to fill available space as you resize the window or device.</li>
+      <li><b>Sidebar:</b> All controls are in the right sidebar (always visible on desktop, togglable on mobile). Use the sidebar for state/transition management, simulation, and import/export.</li>
+      <li><b>Tooltip:</b> Hover over states or transitions to see their names/symbols.</li>
+    </ul>
+    <h2 id="states">States</h2>
+    <ul>
+      <li><b>Start State:</b> Marked with a blue arrow from the right.</li>
+      <li><b>Accept State:</b> Marked with a double circle and green border.</li>
+      <li><b>Selected State:</b> Highlighted in orange.</li>
+      <li><b>Sidebar List:</b> All states are listed in the sidebar for quick selection and renaming.</li>
+    </ul>
+    <h2 id="transitions">Transitions</h2>
+    <ul>
+      <li><b>Add:</b> Select a source state, click <b>Add Transition</b>, then click the target state. Enter the symbol(s).</li>
+      <li><b>Self-loops:</b> Supported and drawn as circles above the state.</li>
+      <li><b>Multiple Transitions:</b> Multiple transitions between the same two states are shown as separate curves.</li>
+      <li><b>Flex/Curve:</b> Hover over a transition to show a blue handle. Drag the handle to flex the curve at any time.</li>
+      <li><b>No Duplicates:</b> You cannot add two transitions with the same symbol from the same state.</li>
+      <li><b>Delete:</b> Click <b>Delete Transition</b>, then click the transition label to remove it.</li>
+    </ul>
+    <h2 id="simulation">Simulation</h2>
+    <ul>
+      <li><b>Input String:</b> Enter a string in the sidebar input box.</li>
+      <li><b>Simulate:</b> Click <b>Simulate</b> to run the automaton on the input string.</li>
+      <li><b>Step:</b> Click <b>Step</b> to step through the input one symbol at a time.</li>
+      <li><b>Reset:</b> Click <b>Reset</b> to clear the simulation and start over.</li>
+      <li><b>Highlighting:</b> The current state(s) and transition are highlighted during simulation.</li>
+      <li><b>Path:</b> The full simulation path is shown after running.</li>
+    </ul>
+    <h2 id="export">Import, Export & Save</h2>
+    <ul>
+      <li><b>Export JSON:</b> Save your automaton as a JSON file for backup or sharing.</li>
+      <li><b>Import JSON:</b> Load a previously saved automaton from a JSON file (must be from this tool).</li>
+      <li><b>Export Image:</b> Save the automaton diagram as a PNG image.</li>
+      <li><b>Clear:</b> Remove all states and transitions to start fresh.</li>
+    </ul>
+    <h2 id="shortcuts">Shortcuts & Pro Tips</h2>
+    <ul>
+      <li><span class="kbd">Esc</span> or <b>Right-click</b> to cancel adding a transition.</li>
+      <li><span class="kbd">Double-click</span> a state to rename it.</li>
+      <li><span class="kbd">Right-click</span> and drag on empty canvas to pan the automaton.</li>
+      <li><span class="kbd">Hover</span> over a transition to flex its curve.</li>
+      <li><span class="kbd">Click</span> a state to select and edit.</li>
+      <li><b>Automaton Type:</b> Changing the automaton type only affects simulation rules; it does not convert your automaton.</li>
+      <li><b>Best Practice:</b> Use unique, short state names and keep your automaton organized for easier debugging and sharing.</li>
+      <li><b>Tip:</b> Export your automaton regularly as JSON or PNG to avoid data loss.</li>
+    </ul>
+    <div class="tip">
+      <b>Advanced:</b> You can always flex transition curves, pan the canvas, and edit states/transitions at any time. The UI is fully responsive and touch-friendly on mobile devices.
+    </div>
+    <h2 id="faq">FAQ</h2>
+    <h3>Can I create self-loops and multiple transitions?</h3>
+    <p>Yes! Self-loops are supported and drawn as circles above the state. Multiple transitions between the same two states are shown as separate curves, as long as their symbols are unique from the same source.</p>
+    <h3>How do I pan or move the whole automaton?</h3>
+    <p>Right-click and drag on empty canvas space to move the entire automaton diagram.</p>
+    <h3>How do I cancel adding a transition?</h3>
+    <p>Press <span class="kbd">Esc</span> or right-click while the orange line is active to cancel transition-adding mode.</p>
+    <h3>Can I import automata from other tools?</h3>
+    <p>You can import automata saved as JSON from this tool. Support for other formats may be added in the future.</p>
+    <h3>What does changing the automaton type do?</h3>
+    <p>It only changes the simulation rules (DFA/NFA/ε-NFA). It does not convert your automaton or its transitions.</p>
+    <h3>Where can I get more help?</h3>
+    <p>Contact the developer or check for updates for more advanced guides and features!</p>
+  </div>
+</body>
+</html> 

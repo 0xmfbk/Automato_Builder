@@ -1,0 +1,60 @@
+{
+  "states": [
+    {
+      "x": 261.0884210526316,
+      "y": 1596.792,
+      "name": "1",
+      "isStart": true,
+      "isAccept": false
+    },
+    {
+      "x": 724.0168421052631,
+      "y": 1590.9399999999998,
+      "name": "2",
+      "isStart": false,
+      "isAccept": false
+    },
+    {
+      "x": 328.20210526315776,
+      "y": 1812.0579999999998,
+      "name": "3",
+      "isStart": false,
+      "isAccept": false
+    },
+    {
+      "x": 688.2021052631578,
+      "y": 1812.0579999999998,
+      "name": "4",
+      "isStart": false,
+      "isAccept": true
+    }
+  ],
+  "transitions": [
+    {
+      "from": 0,
+      "to": 1,
+      "symbol": "a"
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "symbol": "b"
+    },
+    {
+      "from": 2,
+      "to": 3,
+      "symbol": "a"
+    },
+    {
+      "from": 1,
+      "to": 0,
+      "symbol": "c"
+    },
+    {
+      "from": 1,
+      "to": 1,
+      "symbol": "v"
+    }
+  ],
+  "automatonType": "DFA"
+}
